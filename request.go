@@ -57,7 +57,7 @@ func reqHandler(w http.ResponseWriter, r *http.Request, awsRegion string, awsAcc
 		} else if len(payload.Body) < 1 {
 			sendResponse(w, http.StatusBadRequest, `{"error": "insufficient parameters: no body provided"}`)
 		} else {
-			Send(awsRegion, awsAccessKeyId, awsSecretAccessKey, payload.Sender, payload.Recipients, payload.Subject, payload.Body, payload.Subject)
+			Send(awsRegion, awsAccessKeyId, awsSecretAccessKey, payload.Sender, payload.Recipients, payload.Subject, payload.Body, "UTF-8")
 		}
 	default:
 		sendResponse(w, http.StatusMethodNotAllowed, `{"error": "method not allowed or supported"}`)
