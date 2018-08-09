@@ -1,0 +1,70 @@
+openapi: 3.0.0
+
+info:
+  version: '0.0.1-dev'
+  title: Scentre Group Email API
+  description: >-
+    This API is used by various Scentre Group systems to send email to
+    arbitrary recipients.
+  license:
+    name: Scentre Limited All Rights Reserved
+  contact:
+    name: Scentre Limited
+    url: 'https://scentregroup.com/'
+    email: digitalplatforms@scentregroup.com
+
+servers:
+  - url: https://api.scentregroup.io/v1/email
+    description: 'Scentre Group Email API production endpoint.'
+  - url: https://api.stg.scentregroup.io/v1/email
+    description: 'Scentre Group Email API staging endpoint.'
+  - url: https://api.dev.scentregroup.io/v1/email
+    description: 'Scentre Group Email API development endpoint.'
+
+paths:
+  /:
+    post:
+      summary: Send an email
+      requestBody:
+        description: Payload to send an email to one ore more recipients.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sender:
+                  type: string
+                  items:
+                    type: string
+                recipients:
+                  type: string
+                  items:
+                    type: string
+                subject:
+                  type: string
+                  items:
+                    type: string
+                body:
+                  type: string
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Sent
+  /health:
+    get:
+      summary: Basic health check
+      responses:
+        '200':
+          description: Healthy
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: api_key
+
+security:
+  - ApiKeyAuth: []
