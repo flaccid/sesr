@@ -10,10 +10,10 @@ import (
 )
 
 type SendPayload struct {
-	Sender     string `json:"sender"`
-	Recipients string `json:"recipients"`
-	Subject    string `json:"subject"`
-	Body       string `json:"body"`
+	Sender     string   `json:"sender"`
+	Recipients []string `json:"recipients"`
+	Subject    string   `json:"subject"`
+	Body       string   `json:"body"`
 }
 
 func reqHandler(w http.ResponseWriter, r *http.Request, awsRegion string, awsAccessKeyId string, awsSecretAccessKey string) {

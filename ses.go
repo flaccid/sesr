@@ -7,9 +7,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
+
+	log "github.com/Sirupsen/logrus"
 )
 
-func Send(awsRegion string, awsAccessKey string, awsSecretAccessKey string, sender string, recipients string, subject string, textBody string, charset string) {
+func Send(awsRegion string, awsAccessKey string, awsSecretAccessKey string, sender string, recipients []string, subject string, textBody string, charset string) {
 	// create a new aws session
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(awsRegion)},
@@ -22,9 +24,7 @@ func Send(awsRegion string, awsAccessKey string, awsSecretAccessKey string, send
 	input := &ses.SendEmailInput{
 		Destination: &ses.Destination{
 			CcAddresses: []*string{},
-			ToAddresses: []*string{
-				aws.String(recipients),
-			},
+			ToAddresses: aws.StringSlice(recipients),
 		},
 		Message: &ses.Message{
 			Body: &ses.Body{
@@ -71,6 +71,8 @@ func Send(awsRegion string, awsAccessKey string, awsSecretAccessKey string, send
 		return
 	}
 
-	fmt.Println("Email Sent to address: " + recipients)
-	fmt.Println(result)
+	log.WithFields(log.Fields{
+		"recipients": fmt.Sprint(recipients),
+		"result":     result,
+	}).Info("email(s) sent")
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strings"
 
 	"github.com/flaccid/sesr"
 	"github.com/urfave/cli"
@@ -74,7 +75,7 @@ func main() {
 			Name:   "charset",
 			Usage:  "email character set",
 			EnvVar: "EMAIL_CHARSET",
-			Value:	"UTF-8",
+			Value:  "UTF-8",
 		},
 		cli.StringFlag{
 			Name:   "aws-region",
@@ -113,8 +114,12 @@ func start(c *cli.Context) error {
 		// pass mandatory cli params to the api service (aws credentials)
 		sesr.Serve(c.String("aws-region"), c.String("aws-access-key-id"), c.String("aws-secret-access-key"))
 	} else {
-		log.Info("send email to ", c.String("recipients"), " message: ", c.Args().Get(0))
-		sesr.Send(c.String("aws-region"), c.String("aws-access-key-id"), c.String("aws-secret-access-key"), c.String("sender"), c.String("recipients"), c.String("subject"), c.Args().Get(0), c.String("charset"))
+		log.WithFields(log.Fields{
+			"recipients": c.String("recipients"),
+			"message":    c.Args().Get(0),
+		}).Info("send email to")
+
+		sesr.Send(c.String("aws-region"), c.String("aws-access-key-id"), c.String("aws-secret-access-key"), c.String("sender"), strings.Split(c.String("recipients"), ","), c.String("subject"), c.Args().Get(0), c.String("charset"))
 		//log.Info(err)
 	}
 
