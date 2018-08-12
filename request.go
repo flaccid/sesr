@@ -57,7 +57,20 @@ func reqHandler(w http.ResponseWriter, r *http.Request, awsRegion string, awsAcc
 		} else if len(payload.Body) < 1 {
 			sendResponse(w, http.StatusBadRequest, `{"error": "insufficient parameters: no body provided"}`)
 		} else {
-			Send(awsRegion, awsAccessKeyId, awsSecretAccessKey, payload.Sender, payload.Recipients, payload.Subject, payload.Body, "UTF-8")
+			err := Send(awsRegion, awsAccessKeyId, awsSecretAccessKey, payload.Sender, payload.Recipients, payload.Subject, payload.Body, "UTF-8")
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+				}).Error("failure sending email")
+			} else {
+				log.WithFields(log.Fields{
+					"sender":     payload.Sender,
+					"recipients": payload.Recipients,
+					"subject":    payload.Subject,
+					"charset":    "UTF-8",
+					"body":       "[redacted]",
+				}).Info("email(s) sent")
+			}
 		}
 	default:
 		sendResponse(w, http.StatusMethodNotAllowed, `{"error": "method not allowed or supported"}`)
