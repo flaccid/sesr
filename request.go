@@ -3,6 +3,7 @@ package sesr
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -60,8 +61,15 @@ func reqHandler(w http.ResponseWriter, r *http.Request, awsRegion string, awsAcc
 			err := Send(awsRegion, awsAccessKeyId, awsSecretAccessKey, payload.Sender, payload.Recipients, payload.Subject, payload.Body, "UTF-8")
 			if err != nil {
 				log.WithFields(log.Fields{
-					"error": err,
+					"error":      err,
+					"sender":     payload.Sender,
+					"recipients": payload.Recipients,
+					"subject":    payload.Subject,
+					"charset":    "UTF-8",
+					"body":       "[redacted]",
 				}).Error("failure sending email")
+				// we fall back to giving the client a 500 instead of passing back the upstream error code
+				sendResponse(w, http.StatusInternalServerError, fmt.Sprintf(`"error": "%s"`, err))
 			} else {
 				log.WithFields(log.Fields{
 					"sender":     payload.Sender,
@@ -69,7 +77,7 @@ func reqHandler(w http.ResponseWriter, r *http.Request, awsRegion string, awsAcc
 					"subject":    payload.Subject,
 					"charset":    "UTF-8",
 					"body":       "[redacted]",
-				}).Info("email(s) sent")
+				}).Info("sent email")
 			}
 		}
 	default:
