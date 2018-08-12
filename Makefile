@@ -23,6 +23,9 @@ run:: ## Runs the docker image locally
 			-it \
 			$(DOCKER_REGISTRY)/$(IMAGE_ORG)/$(IMAGE_NAME):$(IMAGE_VERSION)
 
+run-daemon:: ## Runs the daemon locally with go directly
+		@go run cmd/sesr/sesr.go --daemon
+
 build-static-linux:: ## Builds a static linux binary
 		@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
 			go build \
