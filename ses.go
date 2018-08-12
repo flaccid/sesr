@@ -2,7 +2,6 @@ package sesr
 
 import (
 	"fmt"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -11,7 +10,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func Send(awsRegion string, awsAccessKey string, awsSecretAccessKey string, sender string, recipients []string, subject string, textBody string, charset string) {
+func Send(awsRegion string, awsAccessKey string, awsSecretAccessKey string, sender string, recipients []string, subject string, textBody string, charset string) (err error) {
 	// create a new aws session
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(awsRegion)},
@@ -49,30 +48,18 @@ func Send(awsRegion string, awsAccessKey string, awsSecretAccessKey string, send
 	// attempt to send the email
 	result, err := svc.SendEmail(input)
 
-	// Display error messages if they occur.
-	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			switch aerr.Code() {
-			case ses.ErrCodeMessageRejected:
-				fmt.Println(ses.ErrCodeMessageRejected, aerr.Error())
-			case ses.ErrCodeMailFromDomainNotVerifiedException:
-				fmt.Println(ses.ErrCodeMailFromDomainNotVerifiedException, aerr.Error())
-			case ses.ErrCodeConfigurationSetDoesNotExistException:
-				fmt.Println(ses.ErrCodeConfigurationSetDoesNotExistException, aerr.Error())
-			default:
-				fmt.Println(aerr.Error())
-			}
-		} else {
-			// Print the error, cast err to awserr.Error to get the Code and
-			// Message from an error.
-			fmt.Println(err.Error())
-		}
+	log.WithFields(log.Fields{
+		"sender":     sender,
+		"recipients": fmt.Sprint(recipients),
+		"subject":    subject,
+		"charset":    charset,
+		"result":     result,
+		"body":       "[redacted]",
+	}).Debug("ses mail send")
 
-		return
+	if err != nil {
+		return err.(awserr.Error)
 	}
 
-	log.WithFields(log.Fields{
-		"recipients": fmt.Sprint(recipients),
-		"result":     result,
-	}).Info("email(s) sent")
+	return nil
 }
