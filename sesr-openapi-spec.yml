@@ -38,7 +38,7 @@ paths:
                   items:
                     type: string
                 recipients:
-                  type: string
+                  type: array
                   items:
                     type: string
                 subject:
