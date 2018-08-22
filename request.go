@@ -47,6 +47,8 @@ func reqHandler(w http.ResponseWriter, r *http.Request, awsRegion string, awsAcc
 		err = json.Unmarshal(bodyBytes, &payload)
 		if err != nil {
 			log.Error("error unmarshalling json: ", err)
+			sendResponse(w, http.StatusBadRequest, `{"error": "invalid payload: json could not be parsed"}`)
+			return
 		}
 
 		if len(payload.Sender) < 1 {
